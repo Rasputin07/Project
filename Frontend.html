@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101614">
+  <title>Airwatch — Hello Gunjan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #101614;
+      --panel: #171f1c;
+      --line: #2c3832;
+      --ink: #e8eee9;
+      --muted: #8c9a91;
+      --green: #9bb89f;
+      --green2: #6f9279;
+      --amber: #c4a877;
+      --red: #c8796d;
+      --shadow: 0 24px 80px #05090777;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 75% -20%, #29382f 0, transparent 38%), var(--bg);
+      color: var(--ink);
+      font-family: Manrope, system-ui, sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .shell { max-width: 1440px; margin: auto; padding: 28px 42px 48px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding-bottom: 25px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: .13em; font-size: 13px; }
+    .brandmark { width: 30px; height: 30px; border: 1px solid #6d8673; border-radius: 10px; display: grid; place-items: center; color: var(--green); font-size: 18px; }
+    .brand small { display: block; color: var(--muted); font-size: 9px; font-weight: 500; letter-spacing: .2em; margin-top: 3px; }
+    .top-right { display: flex; gap: 18px; align-items: center; }
+    .live-pill, .weather-pill { border: 1px solid var(--line); border-radius: 99px; padding: 9px 13px; color: #bdc8bf; font-size: 11px; display: flex; align-items: center; gap: 8px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px #9bb89f99; animation: pulse 2s infinite; }
+    .clock { font: 11px 'DM Mono', monospace; color: var(--muted); line-height: 1.7; text-align: right; }
+    .hero { display: flex; justify-content: space-between; align-items: end; padding: 34px 0 26px; }
+    .eyebrow { font: 10px 'DM Mono', monospace; color: var(--green); letter-spacing: .14em; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(28px, 4vw, 45px); letter-spacing: -.055em; margin: 9px 0 0; font-weight: 600; }
+    .hero h1 span { color: var(--green); }
+    .hero p { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+    .actions { display: flex; gap: 9px; }
+    .btn { border: 1px solid var(--line); border-radius: 11px; padding: 11px 15px; background: #19211e; font-size: 11px; cursor: pointer; transition: .2s; }
+    .btn:hover { border-color: var(--green2); transform: translateY(-2px); background: #202b25; }
+    .btn.primary { background: #a4b9a5; border-color: #a4b9a5; color: #17201a; font-weight: 800; }
+    .btn.primary:hover { background: #bfd0bf; }
+    .grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 16px; }
+    .card { background: linear-gradient(145deg, #1b2420, #171e1b); border: 1px solid var(--line); border-radius: 18px; padding: 22px; position: relative; overflow: hidden; box-shadow: 0 8px 30px #00000012; transition: transform .18s ease, border-color .2s, box-shadow .2s; transform-style: preserve-3d; }
+    .card:hover { border-color: #526258; box-shadow: var(--shadow); }
+    .card-head { display: flex; justify-content: space-between; align-items: center; }
+    .label { font-size: 11px; color: #a7b2aa; letter-spacing: .02em; }
+    .tag { font: 9px 'DM Mono', monospace; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+    .aqi-card { min-height: 284px; display: grid; grid-template-columns: 1fr 180px; align-items: center; padding: 26px 30px; }
+    .aqi-number { font-size: clamp(70px, 10vw, 112px); font-weight: 600; letter-spacing: -.09em; line-height: 1; margin: 14px 0 4px; }
+    .aqi-unit { font: 11px 'DM Mono', monospace; color: var(--muted); letter-spacing: .08em; }
+    .status { display: inline-flex; gap: 8px; align-items: center; border: 1px solid #61766566; border-radius: 99px; padding: 7px 11px; color: var(--green); font-size: 10px; margin-top: 18px; }
+    .dial { width: 164px; height: 164px; position: relative; justify-self: end; }
+    .dial svg { width: 100%; transform: rotate(-90deg); }
+    .dial-track, .dial-value { fill: none; stroke-width: 7; }
+    .dial-track { stroke: #2d3933; }
+    .dial-value { stroke: var(--green); stroke-linecap: round; stroke-dasharray: 440; stroke-dashoffset: 220; transition: stroke-dashoffset 1s ease, stroke .5s; }
+    .dial-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+    .dial-center strong { font-size: 24px; }
+    .dial-center span { font: 9px 'DM Mono', monospace; color: var(--muted); margin-top: 4px; }
+    .chart-card { min-height: 284px; }
+    .chart-meta { display: flex; gap: 16px; font: 9px 'DM Mono', monospace; color: var(--muted); }
+    .legend { display: flex; align-items: center; gap: 6px; }
+    .legend i { width: 6px; height: 6px; background: var(--green); border-radius: 100%; }
+    .chart-wrap { height: 185px; margin-top: 22px; position: relative; }
+    .chart-wrap canvas { width: 100%; height: 100%; display: block; }
+    .chart-tip { position: absolute; background: #0c1210; border: 1px solid #35433a; border-radius: 7px; padding: 6px 8px; font: 9px 'DM Mono', monospace; pointer-events: none; opacity: 0; transform: translate(-50%, -110%); transition: opacity .1s; white-space: nowrap; }
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .metric { min-height: 156px; }
+    .metric-value { font-size: 32px; letter-spacing: -.05em; margin-top: 20px; font-weight: 600; }
+    .metric-value small { font-size: 12px; color: var(--muted); letter-spacing: 0; font-weight: 500; }
+    .meter { height: 4px; border-radius: 5px; background: #303b35; margin-top: 16px; overflow: hidden; }
+    .meter span { height: 100%; display: block; background: var(--green2); width: 40%; transition: width .8s; }
+    .metric-note { font-size: 10px; color: var(--muted); margin-top: 9px; }
+    .hazards { margin-top: 16px; }
+    .hazard-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+    .hazard { display: flex; gap: 12px; padding: 14px; border: 1px solid #2b3731; border-radius: 12px; background: #19211e; align-items: center; }
+    .hazard-icon { width: 36px; height: 36px; border-radius: 10px; background: #252d27; color: var(--amber); display: grid; place-items: center; font-size: 17px; }
+    .hazard strong { display: block; font-size: 11px; }
+    .hazard small { display: block; color: var(--muted); font-size: 9px; margin-top: 4px; }
+    .advice { margin-top: 16px; padding: 0; display: grid; grid-template-columns: 1fr 1.5fr; min-height: 185px; }
+    .advice-intro { padding: 22px; border-right: 1px solid var(--line); }
+    .advice-intro h2 { font-size: 19px; letter-spacing: -.04em; margin: 12px 0 7px; }
+    .advice-intro p { font-size: 10px; line-height: 1.7; color: var(--muted); margin: 0; }
+    .advice-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 12px 18px; }
+    .tip-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 9px; border-bottom: 1px solid #29332e; }
+    .tip-item:nth-child(odd) { border-right: 1px solid #29332e; }
+    .tip-item:nth-last-child(-n+2) { border-bottom: 0; }
+    .tip-no { font: 10px 'DM Mono', monospace; color: var(--green2); padding-top: 2px; }
+    .tip-item span:last-child { font-size: 10px; line-height: 1.55; color: #c3ccc5; }
+    .foot { display: flex; justify-content: space-between; margin-top: 22px; color: #69776e; font: 9px 'DM Mono', monospace; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 20px); background: #d2ded3; color: #152019; border-radius: 9px; padding: 12px 17px; font-size: 11px; opacity: 0; pointer-events: none; transition: .3s; z-index: 20; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .location-input { position: absolute; right: 26px; top: 67px; background: #111916; border: 1px solid #405044; border-radius: 9px; padding: 9px 11px; color: var(--ink); width: 190px; font-size: 11px; display: none; z-index: 5; }
+    .location-input.open { display: block; }
+    .loading { opacity: .55; pointer-events: none; }
+
+    @keyframes pulse { 50% { opacity: .4; box-shadow: 0 0 3px #9bb89f; } }
+
+    @media (max-width: 850px) {
+      .shell { padding: 22px; }
+      .grid { grid-template-columns: 1fr; }
+      .bottom-grid { grid-template-columns: 1fr 1fr; }
+      .advice { grid-template-columns: 1fr; }
+      .advice-intro { border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+
+    @media (max-width: 560px) {
+      .shell { padding: 16px; }
+      .topbar { align-items: flex-start; }
+      .weather-pill { display: none; }
+      .hero { align-items: flex-start; flex-direction: column; gap: 18px; }
+      .actions { width: 100%; }
+      .btn { flex: 1; }
+      .aqi-card { grid-template-columns: 1fr 115px; padding: 22px; }
+      .dial { width: 110px; height: 110px; }
+      .aqi-number { font-size: 76px; }
+      .bottom-grid, .hazard-list, .advice-list { grid-template-columns: 1fr; }
+      .metric { min-height: 135px; }
+      .tip-item:nth-child(odd) { border-right: 0; }
+      .tip-item:nth-last-child(2) { border-bottom: 1px solid #29332e; }
+      .foot { gap: 12px; flex-direction: column; }
+      .clock { font-size: 9px; }
+      .live-pill { font-size: 9px; padding: 8px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brandmark">◌</span>
+        <span>AIRWATCH<small>LOCAL AIR INTELLIGENCE</small></span>
+      </div>
+      <div class="top-right">
+        <div class="live-pill"><i class="dot"></i><span id="feed-label">LIVE AIR DATA</span></div>
+        <div class="weather-pill">☼ <span id="weather">—°C</span></div>
+        <div class="clock"><div id="date">—</div><div id="time">—</div></div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">PERSONAL AIR BRIEFING / <span id="city-label">YOUR LOCALITY</span></div>
+        <h1>Hello <span>Gunjan</span></h1>
+        <p>Your neighborhood, at a glance. Breathe a little easier.</p>
+      </div>
+      <div class="actions">
+        <button class="btn" id="locate">◎ &nbsp;Use my location</button>
+        <button class="btn primary" id="search-toggle">⌕ &nbsp;Change locality</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card aqi-card" id="aqi-card">
+        <div>
+          <div class="card-head">
+            <span class="label">Air quality index</span>
+            <span class="tag" id="updated">UPDATED JUST NOW</span>
+          </div>
+          <div class="aqi-number" id="aqi">42</div>
+          <div class="aqi-unit">US AQI · <span id="primary-pollutant">PM2.5</span> PRIMARY</div>
+          <div class="status"><i class="dot"></i><span id="status-text">Good air quality</span></div>
+        </div>
+        <div class="dial">
+          <svg viewBox="0 0 160 160">
+            <circle class="dial-track" cx="80" cy="80" r="70"></circle>
+            <circle class="dial-value" id="dial-value" cx="80" cy="80" r="70"></circle>
+          </svg>
+          <div class="dial-center"><strong id="dial-label">LOW</strong><span>EXPOSURE</span></div>
+        </div>
+        <input id="place-input" class="location-input" placeholder="City or neighborhood…" autocomplete="off">
+      </article>
+
+      <article class="card chart-card">
+        <div class="card-head">
+          <span class="label">Air quality · past 24 hours</span>
+          <div class="chart-meta"><span class="legend"><i></i> AQI</span><span id="chart-location">LOCAL</span></div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart"></canvas><div id="chart-tip" class="chart-tip"></div></div>
+      </article>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="card metric">
+        <div class="card-head"><span class="label">Fine particles</span><span class="tag">PM2.5</span></div>
+        <div class="metric-value" id="pm25">8 <small>µg/m³</small></div>
+        <div class="meter"><span id="pm-bar"></span></div>
+        <div class="metric-note" id="pm-note">Within WHO daily guideline</div>
+      </article>
+      <article class="card metric">
+        <div class="card-head"><span class="label">Coarse particles</span><span class="tag">PM10</span></div>
+        <div class="metric-value" id="pm10">14 <small>µg/m³</small></div>
+        <div class="meter"><span id="pm10-bar"></span></div>
+        <div class="metric-note">Dust, pollen &amp; road particles</div>
+      </article>
+      <article class="card metric">
+        <div class="card-head"><span class="label">Nitrogen dioxide</span><span class="tag">NO₂</span></div>
+        <div class="metric-value" id="no2">6 <small>µg/m³</small></div>
+        <div class="meter"><span id="no2-bar"></span></div>
+        <div class="metric-note">Often rises near busy roads</div>
+      </article>
+    </section>
+
+    <section class="card hazards">
+      <div class="card-head"><span class="label">What the air can affect</span><span class="tag" id="risk-level">CURRENT RISK · LOW</span></div>
+      <div class="hazard-list">
+        <div class="hazard"><div class="hazard-icon">⌁</div><div><strong>Breathing &amp; lungs</strong><small id="lung-risk">Low impact expected</small></div></div>
+        <div class="hazard"><div class="hazard-icon">♡</div><div><strong>Heart &amp; circulation</strong><small id="heart-risk">Low impact expected</small></div></div>
+        <div class="hazard"><div class="hazard-icon">◉</div><div><strong>Eyes &amp; throat</strong><small id="eye-risk">Unlikely to irritate</small></div></div>
+      </div>
+    </section>
+
+    <section class="card advice">
+      <div class="advice-intro">
+        <div class="eyebrow">YOUR DAILY GUIDE</div>
+        <h2 id="advice-title">A good day to get outside.</h2>
+        <p id="advice-copy">Air is clean enough for your usual routine. Keep an eye on conditions as they change.</p>
+      </div>
+      <div class="advice-list" id="advice-list"></div>
+    </section>
+
+    <footer class="foot">
+      <span>DATA: OPEN-METEO AIR QUALITY · AUTOMATICALLY REFRESHES</span>
+      <span>FOR AWARENESS ONLY · NOT MEDICAL ADVICE</span>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    let place = { name: "New Delhi", lat: 28.6139, lon: 77.209 };
+    let series = [];
+    const demo = { aqi: 42, pm25: 8, pm10: 14, no2: 6, temp: 28 };
+
+    function tick() {
+      const d = new Date();
+      $("date").textContent = d.toLocaleDateString(undefined, {
+        weekday: "short", month: "short", day: "numeric", year: "numeric"
+      }).toUpperCase();
+      $("time").textContent = d.toLocaleTimeString(undefined, {
+        hour: "2-digit", minute: "2-digit", second: "2-digit"
+      });
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    function band(n) {
+      if (n <= 50) return ["Good", "LOW", "var(--green)"];
+      if (n <= 100) return ["Moderate", "MODERATE", "var(--amber)"];
+      if (n <= 150) return ["Unhealthy for sensitive groups", "ELEVATED", "var(--amber)"];
+      if (n <= 200) return ["Unhealthy", "HIGH", "var(--red)"];
+      return ["Very unhealthy", "VERY HIGH", "var(--red)"];
+    }
+
+    function advice(aqi) {
+      let items, title, copy;
+      if (aqi <= 50) {
+        title = "A good day to get outside.";
+        copy = "Air is clean enough for your usual routine. Keep an eye on conditions as they change.";
+        items = [
+          "Enjoy outdoor exercise and your usual activities.",
+          "Open windows for fresh air if it feels comfortable.",
+          "Sensitive individuals can follow their normal routine.",
+          "Check again later; air quality can shift through the day."
+        ];
+      } else if (aqi <= 100) {
+        title = "A little extra care goes a long way.";
+        copy = "Most people can continue their day. If you are sensitive to pollution, notice how you feel outdoors.";
+        items = [
+          "Sensitive groups may prefer lighter, shorter outdoor activity.",
+          "Take breaks indoors if you notice coughing or irritation.",
+          "Consider closing windows during nearby traffic peaks.",
+          "Keep prescribed inhalers with you if you use one."
+        ];
+      } else {
+        title = "Give your lungs a gentler day.";
+        copy = "Pollution is elevated. Reduce prolonged outdoor exertion, especially if you are more sensitive to poor air.";
+        items = [
+          "Move strenuous exercise indoors or postpone it.",
+          "Close windows; use a well-fitted particulate respirator outside.",
+          "Children, older adults and people with asthma should limit exertion.",
+          "Seek medical help for severe or persistent breathing symptoms."
+        ];
+      }
+      $("advice-title").textContent = title;
+      $("advice-copy").textContent = copy;
+      $("advice-list").innerHTML = items.map((text, i) =>
+        `<div class="tip-item"><span class="tip-no">0${i + 1}</span><span>${text}</span></div>`
+      ).join("");
+    }
+
+    function drawChart() {
+      const canvas = $("chart");
+      const wrap = canvas.parentElement;
+      const ctx = canvas.getContext("2d");
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      const dpr = devicePixelRatio || 1;
+
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, w, h);
+
+      const values = series.length ? series : Array.from({ length: 24 }, (_, i) =>
+        Math.max(8, 42 + Math.sin(i * .42) * 12 + Math.cos(i * .15) * 8)
+      );
+      const max = Math.max(100, ...values) * 1.08;
+      const p = { l: 4, r: 4, t: 12, b: 22 };
+      const cw = w - p.l - p.r;
+      const ch = h - p.t - p.b;
+
+      ctx.font = "9px DM Mono, monospace";
+      ctx.fillStyle = "#77847b";
+      ctx.strokeStyle = "#2b3731";
+      ctx.lineWidth = 1;
+      [0, .5, 1].forEach(v => {
+        const y = p.t + ch * v;
+        ctx.beginPath();
+        ctx.moveTo(p.l, y);
+        ctx.lineTo(w - p.r, y);
+        ctx.stroke();
+        ctx.fillText(Math.round(max * (1 - v)), p.l + 3, y - 4);
+      });
+
+      ["24h ago", "12h ago", "now"].forEach((text, i) =>
+        ctx.fillText(text, p.l + (cw - 34) * i / 2, h - 3)
+      );
+
+      const points = values.map((v, i) => ({
+        x: p.l + i * cw / (values.length - 1),
+        y: p.t + ch * (1 - v / max),
+        v
+      }));
+
+      ctx.beginPath();
+      points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      ctx.lineTo(points.at(-1).x, h - p.b);
+      ctx.lineTo(points[0].x, h - p.b);
+      ctx.closePath();
+
+      const gradient = ctx.createLinearGradient(0, p.t, 0, h);
+      gradient.addColorStop(0, "#8daa8c55");
+      gradient.addColorStop(1, "#8daa8c00");
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.beginPath();
+      points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      ctx.strokeStyle = "#9bb89f";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "#b9cbb9";
+      points.forEach((p, i) => {
+        if (i % 4 === 0 || i === points.length - 1) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      canvas.onmousemove = e => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const index = Math.max(0, Math.min(points.length - 1, Math.round(x / cw * (points.length - 1))));
+        const point = points[index];
+        const tip = $("chart-tip");
+        tip.style.opacity = 1;
+        tip.style.left = point.x + "px";
+        tip.style.top = point.y + "px";
+        tip.textContent = `${point.v} AQI · ${index}:00`;
+      };
+      canvas.onmouseleave = () => $("chart-tip").style.opacity = 0;
+    }
+
+    function render(data, live = true) {
+      const aqi = Math.round(data.aqi ?? demo.aqi);
+      const pm25 = Math.round(data.pm25 ?? demo.pm25);
+      const pm10 = Math.round(data.pm10 ?? demo.pm10);
+      const no2 = Math.round(data.no2 ?? demo.no2);
+      const [label, level, color] = band(aqi);
+
+      $("aqi").textContent = aqi;
+      $("pm25").innerHTML = `${pm25} <small>µg/m³</small>`;
+      $("pm10").innerHTML = `${pm10} <small>µg/m³</small>`;
+      $("no2").innerHTML = `${no2} <small>µg/m³</small>`;
+      $("weather").textContent = `${Math.round(data.temp ?? demo.temp)}°C`;
+      $("status-text").textContent = label + " air quality";
+      $("dial-label").textContent = level;
+      $("dial-value").style.stroke = color;
+      $("dial-value").style.strokeDashoffset = 440 * (1 - Math.min(aqi, 300) / 300);
+      $("risk-level").textContent = "CURRENT RISK · " + level;
+
+      $("lung-risk").textContent = aqi <= 50 ? "Low impact expected" :
+        aqi <= 100 ? "Sensitive groups may notice effects" : "Breathing may be affected";
+      $("heart-risk").textContent = aqi <= 50 ? "Low impact expected" :
+        aqi <= 100 ? "Sensitive groups should take care" : "Limit strenuous outdoor activity";
+      $("eye-risk").textContent = aqi <= 50 ? "Unlikely to irritate" :
+        aqi <= 100 ? "Mild irritation possible" : "Irritation more likely";
+
+      $("pm-bar").style.width = Math.min(100, pm25 / 25 * 100) + "%";
+      $("pm10-bar").style.width = Math.min(100, pm10 / 50 * 100) + "%";
+      $("no2-bar").style.width = Math.min(100, no2 / 100 * 100) + "%";
+      $("pm-note").textContent = pm25 <= 15 ? "Within WHO daily guideline" : "Above WHO daily guideline";
+      $("feed-label").textContent = live ? "LIVE AIR DATA" : "SAMPLE DATA";
+      $("updated").textContent = "UPDATED JUST NOW";
+
+      advice(aqi);
+      drawChart();
+    }
+
+    async function fetchAir(lat, lon) {
+      try {
+        $("aqi-card").classList.add("loading");
+        const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5,nitrogen_dioxide,us_aqi&current=pm10,pm2_5,nitrogen_dioxide,us_aqi&timezone=auto&forecast_days=1&past_days=1`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Air data unavailable");
+
+        const json = await response.json();
+        const current = json.current;
+        const hourly = json.hourly;
+        const index = hourly.time.indexOf(current.time);
+        series = hourly.us_aqi.slice(Math.max(0, index - 23), index + 1).map(x => Math.round(x || 0));
+
+        render({
+          aqi: current.us_aqi,
+          pm25: current.pm2_5,
+          pm10: current.pm10,
+          no2: current.nitrogen_dioxide,
+          temp: demo.temp
+        }, true);
+
+        $("updated").textContent = "UPDATED " +
+          new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }).toUpperCase();
+      } catch (error) {
+        series = [];
+        render(demo, false);
+        toast("Showing sample readings. Live air data could not be reached.");
+      } finally {
+        $("aqi-card").classList.remove("loading");
+      }
+    }
+
+    async function lookup(name) {
+      try {
+        toast("Finding " + name + "…");
+        const response = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`
+        );
+        const json = await response.json();
+        if (!json.results?.length) throw new Error("Place not found");
+
+        place = {
+          name: json.results[0].name,
+          lat: json.results[0].latitude,
+          lon: json.results[0].longitude
+        };
+        $("city-label").textContent = place.name.toUpperCase();
+        $("chart-location").textContent = place.name.toUpperCase();
+        await fetchAir(place.lat, place.lon);
+      } catch (error) {
+        toast("Could not find that place. Try a nearby city.");
+      }
+    }
+
+    function toast(message) {
+      const element = $("toast");
+      element.textContent = message;
+      element.classList.add("show");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => element.classList.remove("show"), 3200);
+    }
+
+    $("search-toggle").onclick = () => {
+      $("place-input").classList.toggle("open");
+      if ($("place-input").classList.contains("open")) $("place-input").focus();
+    };
+
+    $("place-input").addEventListener("keydown", event => {
+      if (event.key === "Enter" && event.target.value.trim()) {
+        lookup(event.target.value.trim());
+        event.target.value = "";
+        event.target.blur();
+        event.target.classList.remove("open");
+      }
+    });
+
+    $("locate").onclick = () => {
+      if (!navigator.geolocation) return toast("Location is not available in this browser.");
+      $("locate").textContent = "Locating…";
+
+      navigator.geolocation.getCurrentPosition(async position => {
+        place = {
+          name: "Your location",
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        };
+        $("city-label").textContent = "YOUR LOCATION";
+        $("chart-location").textContent = "LOCAL";
+        await fetchAir(place.lat, place.lon);
+        $("locate").innerHTML = "◎ &nbsp;Use my location";
+      }, () => {
+        toast("Location permission was not available. Search for a locality instead.");
+        $("locate").innerHTML = "◎ &nbsp;Use my location";
+      }, { timeout: 10000 });
+    };
+
+    document.querySelectorAll(".card").forEach(card => {
+      card.addEventListener("pointermove", event => {
+        if (innerWidth < 700) return;
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - .5;
+        const y = (event.clientY - rect.top) / rect.height - .5;
+        card.style.transform = `perspective(900px) rotateX(${-y * 2.2}deg) rotateY(${x * 2.2}deg) translateY(-2px)`;
+      });
+      card.addEventListener("pointerleave", () => card.style.transform = "");
+    });
+
+    window.addEventListener("resize", drawChart);
+    render(demo, false);
+    lookup("New Delhi");
+    setInterval(() => fetchAir(place.lat, place.lon), 15 * 60 * 1000);
+  </script>
+</body>
+</html>
